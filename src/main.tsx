@@ -1,12 +1,15 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Link, Outlet, RouterProvider, createHashRouter } from 'react-router-dom';
+import { TimerProvider } from './utils/context';
 
 import './index.css';
 import styled from 'styled-components';
 import DocumentationView from './views/DocumentationView';
 import TimersView from './views/AddTimer.tsx';
 import Home from './views/Home.tsx'
+
+
 
 
 
@@ -57,6 +60,7 @@ const ButtonLink = styled(Link)`
 
 const PageIndex = () => {
     return (
+      <TimerProvider>
         <Container>
             <Title>ANIKET'S TIMECLOCK ASSIGNMENT</Title>
             <ButtonLink to="/">Workout</ButtonLink>
@@ -64,6 +68,7 @@ const PageIndex = () => {
             <ButtonLink to="/add">Add Timers</ButtonLink>
             <Outlet />
         </Container>
+      </TimerProvider>
     );
 };
 

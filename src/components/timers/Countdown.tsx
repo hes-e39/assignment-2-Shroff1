@@ -2,21 +2,16 @@ import ActionButton from '../generic/ActionButton';
 import DisplayWindow from '../generic/DisplayWindow';
 import InputField from '../generic/Input';
 import Loading from '../generic/Loading';
-import { useTimer } from '../../utils/helpers';
+//import { useTimer } from '../../utils/helpers';
+import { useTimerContext } from '../../utils/context';
+
+
 
 //Create the countdown context
 
 const Countdown = () => {
-    const {
-        time,
-        isRunning,
-        errorMessage,
-        handlePlayPause,
-        handleReset,
-        handleFastForward, 
-        setTimer,
-    } = useTimer('countdown');
-
+    const { time, isRunning, errorMessage, handlePlayPause, handleReset, handleFastForward, setTimer } = useTimerContext();
+        
     
     // Convert time to minutes and seconds for display
     const minutes = Math.floor(time / 60);

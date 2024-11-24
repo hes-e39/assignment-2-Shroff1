@@ -1,32 +1,46 @@
-/*import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
-// Define types for the timer state
+// Define the types for the context state and actions
 interface TimerContextType {
-  time: number;
-  isRunning: boolean;
-  errorMessage: string;
-  mode: string;
-  handlePlayPause: () => void;
-  handleReset: () => void;
-  handleFastForward: () => void;
-  setTimer: (minutes: number, seconds: number) => void;
-}
+    time: number;
+    isRunning: boolean;
+    errorMessage: string;
+    mode: string;
+    handlePlayPause: () => void;
+    handleReset: () => void;
+    handleFastForward: () => void;
+    setTimer: (minutes: number, seconds: number) => void;
+  }
 
-const TimerContext = createContext<TimerContextType | undefined>(undefined);
+// Define the type for the TimerProvider props
+interface TimerProviderProps {
+    children: ReactNode;
+  }
+
+const defaultContextValue: TimerContextType = {
+    time: 0,
+    isRunning: false,
+    errorMessage: '',
+    mode: 'countdown',
+    handlePlayPause: () => {},
+    handleReset: () => {},
+    handleFastForward: () => {},
+    setTimer: () => {},
+  };
+
+const TimerContext = createContext<TimerContextType>(defaultContextValue);
 
 export const useTimerContext = () => {
     const context = useContext(TimerContext);
-    if (!context) {
-      throw new Error('useTimerContext must be used within a TimerProvider');
-    }
     return context;
   };
 
-  export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
+
+export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
     const [time, setTime] = useState(0); // Time remaining
     const [isRunning, setIsRunning] = useState(false); // Timer state (running or paused)
     const [errorMessage, setErrorMessage] = useState(''); // Error handling
-    const [mode, setMode] = useState('countdown'); // Timer mode ('countdown' or 'stopwatch')
+    const [mode] = useState('countdown'); // Timer mode ('countdown' or 'stopwatch')
   
     // Timer logic for countdown and stopwatch
     useEffect(() => {
@@ -93,21 +107,10 @@ export const useTimerContext = () => {
         setErrorMessage('Please provide a valid time!');
       }
     };
-  
     return (
-      <TimerContext.Provider
-        value={{
-          time,
-          isRunning,
-          errorMessage,
-          mode,
-          handlePlayPause,
-          handleReset,
-          handleFastForward,
-          setTimer,
-        }}
-      >
-        {children}
-      </TimerContext.Provider>
+        <TimerContext.Provider value={{time,isRunning,errorMessage,mode, handlePlayPause,handleReset,handleFastForward,setTimer}}>
+            {children}
+        </TimerContext.Provider>
     );
-  };*/
+};
+
