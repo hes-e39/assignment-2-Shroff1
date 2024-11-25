@@ -9,6 +9,7 @@ interface Timer {
 // Define the types for the context state and actions
 interface TimerContextType {
     time: number;
+    totalTime: number;
     isRunning: boolean;
     errorMessage: string;
     mode: string;
@@ -32,6 +33,7 @@ interface TimerProviderProps {
 
 const defaultContextValue: TimerContextType = {
     time: 0,
+    totalTime: 0,
     isRunning: false,
     errorMessage: '',
     mode: 'countdown',
@@ -58,6 +60,9 @@ export const useTimerContext = () => {
 export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
     const [timersQueue, setTimersQueue] = useState<{ time: number; isRunning: boolean; mode: string }[]>([]);
     const [time, setTime] = useState(0); // Time remaining
+    const [totalTime, setTotalTime] = useState(0); // Total Time
+    //const [currentTimerIndex, setCurrentTimerIndex] = useState(0);
+    //const [remainingTime, setRemainingTime] = useState(timersQueue[currentTimerIndex]?.time || 0);
     const [isRunning, setIsRunning] = useState(false); // Timer state (running or paused)
     const [errorMessage, setErrorMessage] = useState(''); // Error handling
     const [mode, setMode] = useState("countdown"); // Timer mode ('countdown' or 'stopwatch')
@@ -78,6 +83,7 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
                 return 0;
               }
               return prevTime - 1;
+              console.log("Provider Effect Runnning");
             });
           }, 1000);
         } else if (mode === 'stopwatch') {
@@ -91,7 +97,7 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
       return () => {
         if (timer) clearInterval(timer); // Clean up the timer
       };
-    }, [isRunning, time, mode]);
+    }, [isRunning, timersQueue, time, mode]);
   
     // Function to save the values that are added 
     const saveCurrentTimerToQueue = () => {
@@ -103,6 +109,11 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
       setTimersQueue(prevQueue => [...prevQueue, { time, isRunning, mode }]);
       console.log(timersQueue)
     };
+
+    useEffect(() => {
+      const newTotalTime = timersQueue.reduce((total, timer) => total + timer.time, 0);
+      setTotalTime(newTotalTime);
+    }, [timersQueue]);
 
     // Function to save the values that are added 
     const deleteCurrentTimerToQueue = () => {
@@ -160,9 +171,8 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
       setTime(seconds);
     }
 
-
     return (
-        <TimerContext.Provider value={{time,isRunning,errorMessage,mode, handlePlayPause,handleReset,handleFastForward,setTimer, setModer, timersQueue, saveCurrentTimerToQueue, deleteCurrentTimerToQueue, setIsRunning, setTimerDirect, startQueue}}>
+        <TimerContext.Provider value={{time,isRunning,errorMessage,mode, handlePlayPause,handleReset,handleFastForward,setTimer, setModer, timersQueue, saveCurrentTimerToQueue, deleteCurrentTimerToQueue, setIsRunning, setTimerDirect, startQueue, totalTime}}>
             {children}
         </TimerContext.Provider>
     );

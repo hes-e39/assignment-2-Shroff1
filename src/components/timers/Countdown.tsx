@@ -11,7 +11,7 @@ import { useEffect } from 'react';
 //Create the countdown context
 
 const Countdown = () => {
-    const { time, isRunning, mode, errorMessage, handlePlayPause, handleReset, handleFastForward, setTimer, setModer, saveCurrentTimerToQueue, deleteCurrentTimerToQueue, setIsRunning, setTimerDirect } = useTimerContext();
+    const { time, isRunning, mode, errorMessage, handlePlayPause, handleReset, handleFastForward, setTimer, setModer, saveCurrentTimerToQueue, deleteCurrentTimerToQueue, setIsRunning, setTimerDirect, timersQueue } = useTimerContext();
     
     useEffect(() => {
         let timer: number | undefined;
@@ -21,6 +21,8 @@ const Countdown = () => {
                 setTimerDirect(time - 1);
             }, 1000);
             console.log(time)
+            console.log(timersQueue);
+            console.log("Countdown feature runnning");
         } else if (time === 0) {
             setIsRunning(false);
         }
@@ -28,7 +30,7 @@ const Countdown = () => {
             if (timer) clearInterval(timer);
         };
         
-    }, [isRunning, mode, time]);
+    }, [isRunning, mode, time, timersQueue]);
 
 
     // Convert time to minutes and seconds for display
