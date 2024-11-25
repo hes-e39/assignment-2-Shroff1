@@ -12,10 +12,13 @@ interface TimerContextType {
     isRunning: boolean;
     errorMessage: string;
     mode: string;
+    startQueue: () => void;
     handlePlayPause: () => void;
     handleReset: () => void;
     handleFastForward: () => void;
     setTimer: (minutes: number, seconds: number) => void;
+    setTimerDirect: (seconds: number) => void;
+    setIsRunning: (state: boolean) => void;
     setModer: (mode: string) => void;
     timersQueue: Timer[];
     saveCurrentTimerToQueue: () => void;
@@ -33,10 +36,13 @@ const defaultContextValue: TimerContextType = {
     errorMessage: '',
     mode: 'countdown',
     timersQueue:[{time:0, isRunning:false, mode:'countdown'}],
+    startQueue: () => {},
     handlePlayPause: () => {},
     handleReset: () => {},
     handleFastForward: () => {},
     setTimer: () => {},
+    setTimerDirect: () => {},
+    setIsRunning: () => {},
     setModer: () => {},
     saveCurrentTimerToQueue: () => {},
     deleteCurrentTimerToQueue: () => {},
@@ -55,6 +61,8 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
     const [isRunning, setIsRunning] = useState(false); // Timer state (running or paused)
     const [errorMessage, setErrorMessage] = useState(''); // Error handling
     const [mode, setMode] = useState("countdown"); // Timer mode ('countdown' or 'stopwatch')
+    //const [currentTimerIndex, setCurrentTimerIndex] = useState(0); // Track the current timer index in the queue
+    
   
     // Timer logic for countdown and stopwatch
     useEffect(() => {
@@ -87,17 +95,24 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
   
     // Function to save the values that are added 
     const saveCurrentTimerToQueue = () => {
+      console.log({time, isRunning, mode})
       if (time === 0) {
         // Don't save if time is 0
         return;
       }
       setTimersQueue(prevQueue => [...prevQueue, { time, isRunning, mode }]);
+      console.log(timersQueue)
     };
 
     // Function to save the values that are added 
     const deleteCurrentTimerToQueue = () => {
       setTimersQueue(prevQueue => prevQueue.slice(0, prevQueue.length - 1));
       console.log({timersQueue})
+    };
+
+    const startQueue = () => {
+      //setCurrentTimerIndex(0); // Start from the first timer
+      setIsRunning(true); // Start the first timer
     };
 
     // Play or pause the timer
@@ -140,8 +155,14 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
         setErrorMessage('Please provide a valid time!');
       }
     };
+
+    const setTimerDirect = (seconds: number) => {
+      setTime(seconds);
+    }
+
+
     return (
-        <TimerContext.Provider value={{time,isRunning,errorMessage,mode, handlePlayPause,handleReset,handleFastForward,setTimer, setModer, timersQueue, saveCurrentTimerToQueue, deleteCurrentTimerToQueue}}>
+        <TimerContext.Provider value={{time,isRunning,errorMessage,mode, handlePlayPause,handleReset,handleFastForward,setTimer, setModer, timersQueue, saveCurrentTimerToQueue, deleteCurrentTimerToQueue, setIsRunning, setTimerDirect, startQueue}}>
             {children}
         </TimerContext.Provider>
     );

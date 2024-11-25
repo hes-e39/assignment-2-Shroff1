@@ -4,15 +4,33 @@ import InputField from '../generic/Input';
 import Loading from '../generic/Loading';
 //import { useTimer } from '../../utils/helpers';
 import { useTimerContext } from '../../utils/context';
+import { useEffect } from 'react';
 
 
 
 //Create the countdown context
 
 const Countdown = () => {
-    const { time, isRunning, errorMessage, handlePlayPause, handleReset, handleFastForward, setTimer, setModer, saveCurrentTimerToQueue, deleteCurrentTimerToQueue } = useTimerContext();
+    const { time, isRunning, mode, errorMessage, handlePlayPause, handleReset, handleFastForward, setTimer, setModer, saveCurrentTimerToQueue, deleteCurrentTimerToQueue, setIsRunning, setTimerDirect } = useTimerContext();
     
-    
+    useEffect(() => {
+        let timer: number | undefined;
+        //if statement to run countdown and check if time has reached 0
+        if (mode === 'countdown' && isRunning && time > 0) {
+            timer = setInterval(() => {
+                setTimerDirect(time - 1);
+            }, 1000);
+            console.log(time)
+        } else if (time === 0) {
+            setIsRunning(false);
+        }
+        return () => {
+            if (timer) clearInterval(timer);
+        };
+        
+    }, [isRunning, mode, time]);
+
+
     // Convert time to minutes and seconds for display
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
