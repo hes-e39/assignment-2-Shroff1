@@ -4,7 +4,9 @@ import DisplayWindow from '../generic/DisplayWindow';
 import Loading from '../generic/Loading';
 import { useTimer } from '../../utils/helpers';
 
+
 const Stopwatch = () => {
+    
     const {
         time,
         isRunning,

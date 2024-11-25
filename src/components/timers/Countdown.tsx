@@ -10,8 +10,8 @@ import { useTimerContext } from '../../utils/context';
 //Create the countdown context
 
 const Countdown = () => {
-    const { time, isRunning, errorMessage, handlePlayPause, handleReset, handleFastForward, setTimer } = useTimerContext();
-        
+    const { time, isRunning, errorMessage, handlePlayPause, handleReset, handleFastForward, setTimer, setModer, saveCurrentTimerToQueue} = useTimerContext();
+    
     
     // Convert time to minutes and seconds for display
     const minutes = Math.floor(time / 60);
@@ -23,6 +23,7 @@ const Countdown = () => {
         const value = Number(e.target.value);
         // Set the updated minutes while keeping the current seconds
         setTimer(value, seconds); // Update minutes, keep current seconds
+        setModer("countdown"); //Need to move this logic to add timer later
     };
 
     // Handle second change (restricting to 0-59)
@@ -65,10 +66,10 @@ const Countdown = () => {
                 <ActionButton name={isRunning ? 'Pause' : 'Play'} key="PausePlay" onClick={handlePlayPause} />
                 <ActionButton name="Reset" key="Reset" onClick={handleReset} />
                 <ActionButton name="FastForward" key="FastForward" onClick={handleFastForward} />
+                <button onClick = {saveCurrentTimerToQueue}>Add Timer</button>
             </Loading.ActivityButtonContainer>
         </div>
     );
 };
 
 export default Countdown;
-

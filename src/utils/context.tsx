@@ -1,5 +1,11 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
+interface Timer {
+  time: number;
+  isRunning: boolean;
+  mode: string;
+}
+
 // Define the types for the context state and actions
 interface TimerContextType {
     time: number;
@@ -10,6 +16,9 @@ interface TimerContextType {
     handleReset: () => void;
     handleFastForward: () => void;
     setTimer: (minutes: number, seconds: number) => void;
+    setModer: (mode: string) => void;
+    timersQueue: Timer[];
+    saveCurrentTimerToQueue: () => void;
   }
 
 // Define the type for the TimerProvider props
@@ -22,10 +31,13 @@ const defaultContextValue: TimerContextType = {
     isRunning: false,
     errorMessage: '',
     mode: 'countdown',
+    timersQueue:[{time:0, isRunning:false, mode:'countdown'}],
     handlePlayPause: () => {},
     handleReset: () => {},
     handleFastForward: () => {},
     setTimer: () => {},
+    setModer: () => {},
+    saveCurrentTimerToQueue: () => {},
   };
 
 const TimerContext = createContext<TimerContextType>(defaultContextValue);
@@ -35,12 +47,12 @@ export const useTimerContext = () => {
     return context;
   };
 
-
 export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
+    const [timersQueue, setTimersQueue] = useState<{ time: number; isRunning: boolean; mode: string }[]>([]);
     const [time, setTime] = useState(0); // Time remaining
     const [isRunning, setIsRunning] = useState(false); // Timer state (running or paused)
     const [errorMessage, setErrorMessage] = useState(''); // Error handling
-    const [mode] = useState('countdown'); // Timer mode ('countdown' or 'stopwatch')
+    const [mode, setMode] = useState("countdown"); // Timer mode ('countdown' or 'stopwatch')
   
     // Timer logic for countdown and stopwatch
     useEffect(() => {
@@ -71,6 +83,12 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
       };
     }, [isRunning, time, mode]);
   
+    // Function to save the values that are added 
+    const saveCurrentTimerToQueue = () => {
+      setTimersQueue(prevQueue => [...prevQueue, { time, isRunning, mode }]);
+      console.log({timersQueue})
+    };
+
     // Play or pause the timer
     const handlePlayPause = () => {
       if (mode === 'stopwatch' || time > 0) {
@@ -96,7 +114,11 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
       }
       setIsRunning(false); // Stop the timer after fast forwarding
     };
-  
+    
+    const setModer = (mode: string) => {
+      setMode(mode)
+    };
+
     // Set the timer manually
     const setTimer = (minutes: number, seconds: number) => {
       const totalSeconds = minutes * 60 + seconds;
@@ -108,9 +130,8 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
       }
     };
     return (
-        <TimerContext.Provider value={{time,isRunning,errorMessage,mode, handlePlayPause,handleReset,handleFastForward,setTimer}}>
+        <TimerContext.Provider value={{time,isRunning,errorMessage,mode, handlePlayPause,handleReset,handleFastForward,setTimer, setModer, timersQueue, saveCurrentTimerToQueue}}>
             {children}
         </TimerContext.Provider>
     );
 };
-

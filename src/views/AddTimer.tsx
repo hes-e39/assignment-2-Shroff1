@@ -5,6 +5,10 @@ import Countdown from '../components/timers/Countdown';
 import Stopwatch from '../components/timers/Stopwatch';
 import Tabata from '../components/timers/Tabata';
 import XY from '../components/timers/XY';
+import { useTimerContext } from '../utils/context';
+
+
+
 
 const TimersContainer = styled.div`
   display: flex;
@@ -86,6 +90,8 @@ const TimersView = () => {
         { title: 'Tabata', C: <Tabata /> },
     ];
 
+    const {timersQueue} = useTimerContext();
+    
     return (
         <TimersContainer onClick={() => console.log('ani')}>
             <TimerDisplay>{timers.map(timer => (activeTimer === timer.title ? timer.C : null))}</TimerDisplay>
@@ -102,8 +108,22 @@ const TimersView = () => {
                         <TimerTitle>{timer.title}</TimerTitle>
                     </TimerButton>
                 ))}
-              <button>ADD TIMER</button>
             </StopWatchButtonContainer>
+            {/* Queue display */}
+            <div>
+                <h3>Timer Queue</h3>
+                <ul>
+                    {timersQueue.length === 0 ? (
+                        <li>No timers in the queue</li>
+                    ) : (
+                        timersQueue.map((timer, index) => (
+                            <li key={index}>
+                                Time: {timer.time} seconds, Running: {timer.isRunning ? 'Yes' : 'No'}, Mode: {timer.mode}
+                            </li>
+                        ))
+                    )}
+                </ul>
+            </div>
         </TimersContainer>
     );
 };

@@ -59,8 +59,7 @@ const ButtonLink = styled(Link)`
 `;
 
 const PageIndex = () => {
-    return (
-      <TimerProvider>
+    return (   
         <Container>
             <Title>ANIKET'S TIMECLOCK ASSIGNMENT</Title>
             <ButtonLink to="/">Workout</ButtonLink>
@@ -68,9 +67,8 @@ const PageIndex = () => {
             <ButtonLink to="/add">Add Timers</ButtonLink>
             <Outlet />
         </Container>
-      </TimerProvider>
     );
-};
+  };
 
 const router = createHashRouter([
     {
@@ -95,8 +93,9 @@ const router = createHashRouter([
 
 // biome-ignore lint/style/noNonNullAssertion: root html element is there
 createRoot(document.getElementById('root')!).render(
-    
       <StrictMode>
+        <TimerProvider>
           <RouterProvider router={router} />
+        </TimerProvider>
       </StrictMode>
 );
