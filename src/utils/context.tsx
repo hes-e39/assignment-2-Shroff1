@@ -67,37 +67,63 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
     const [errorMessage, setErrorMessage] = useState(''); // Error handling
     const [mode, setMode] = useState("countdown"); // Timer mode ('countdown' or 'stopwatch')
     //const [currentTimerIndex, setCurrentTimerIndex] = useState(0); // Track the current timer index in the queue
-    
+    const [activeTimerIndex, setActiveTimerIndex] = useState<number | null>(null); // Track the active timer
   
     // Timer logic for countdown and stopwatch
     useEffect(() => {
       let timer: number | undefined;
   
-      if (isRunning) {
-        if (mode === 'countdown' && time > 0) {
+      if (isRunning && activeTimerIndex !== null) {
+        if (mode === 'countdown' && timersQueue[activeTimerIndex].time > 0) {
           // Countdown mode: Decrement the time
           timer = window.setInterval(() => {
-            setTime(prevTime => {
-              if (prevTime <= 1) {
-                setIsRunning(false); // Stop the countdown timer when it reaches 0
-                return 0;
+            setTimersQueue((prevQueue) => {
+              const updatedQueue = [...prevQueue];
+              updatedQueue[activeTimerIndex].time -= 1;
+              
+              console.log(updatedQueue[activeTimerIndex].time)
+              // Stop the timer if time reaches 0
+              if (updatedQueue[activeTimerIndex].time <= 0) {
+                setIsRunning(false);
               }
-              return prevTime - 1;
-              console.log("Provider Effect Runnning");
+    
+              return updatedQueue;
             });
-          }, 1000);
-        } else if (mode === 'stopwatch') {
-          // Stopwatch mode: Increment the time
-          timer = window.setInterval(() => {
-            setTime(prevTime => prevTime + 1);
           }, 1000);
         }
       }
+        
   
       return () => {
         if (timer) clearInterval(timer); // Clean up the timer
       };
-    }, [isRunning, timersQueue, time, mode]);
+    }, [isRunning, activeTimerIndex, mode, timersQueue]);
+
+
+  
+    // Start queue function now selects the first timer and starts it
+  const startQueue = () => {
+  if (timersQueue.length > 0) {
+    setActiveTimerIndex(0); // Start with the first timer in the queue
+    setIsRunning(true);
+  } else {
+    setErrorMessage('No timers in the queue to start!');
+  }
+};
+
+  // Move to the next timer when the current one finishes
+useEffect(() => {
+  if (activeTimerIndex !== null && timersQueue[activeTimerIndex]?.time === 0) {
+    // Automatically move to the next timer
+    if (activeTimerIndex < timersQueue.length - 1) {
+      setActiveTimerIndex((prevIndex) => (prevIndex !== null ? prevIndex + 1 : null));
+      setIsRunning(true);
+    } else {
+      setActiveTimerIndex(null); // End of the queue
+      setIsRunning(false);
+    }
+  }
+}, [activeTimerIndex, timersQueue]);
   
     // Function to save the values that are added 
     const saveCurrentTimerToQueue = () => {
@@ -121,10 +147,10 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
       console.log({timersQueue})
     };
 
-    const startQueue = () => {
+    /*const startQueue = () => {
       //setCurrentTimerIndex(0); // Start from the first timer
       setIsRunning(true); // Start the first timer
-    };
+    };*/
 
     // Play or pause the timer
     const handlePlayPause = () => {
