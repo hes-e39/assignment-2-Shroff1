@@ -19,6 +19,7 @@ interface TimerContextType {
     setModer: (mode: string) => void;
     timersQueue: Timer[];
     saveCurrentTimerToQueue: () => void;
+    deleteCurrentTimerToQueue: () => void;
   }
 
 // Define the type for the TimerProvider props
@@ -38,6 +39,7 @@ const defaultContextValue: TimerContextType = {
     setTimer: () => {},
     setModer: () => {},
     saveCurrentTimerToQueue: () => {},
+    deleteCurrentTimerToQueue: () => {},
   };
 
 const TimerContext = createContext<TimerContextType>(defaultContextValue);
@@ -85,7 +87,16 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
   
     // Function to save the values that are added 
     const saveCurrentTimerToQueue = () => {
+      if (time === 0) {
+        // Don't save if time is 0
+        return;
+      }
       setTimersQueue(prevQueue => [...prevQueue, { time, isRunning, mode }]);
+    };
+
+    // Function to save the values that are added 
+    const deleteCurrentTimerToQueue = () => {
+      setTimersQueue(prevQueue => prevQueue.slice(0, prevQueue.length - 1));
       console.log({timersQueue})
     };
 
@@ -130,7 +141,7 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
       }
     };
     return (
-        <TimerContext.Provider value={{time,isRunning,errorMessage,mode, handlePlayPause,handleReset,handleFastForward,setTimer, setModer, timersQueue, saveCurrentTimerToQueue}}>
+        <TimerContext.Provider value={{time,isRunning,errorMessage,mode, handlePlayPause,handleReset,handleFastForward,setTimer, setModer, timersQueue, saveCurrentTimerToQueue, deleteCurrentTimerToQueue}}>
             {children}
         </TimerContext.Provider>
     );
