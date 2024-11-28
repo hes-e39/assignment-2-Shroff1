@@ -6,10 +6,7 @@ import Stopwatch from '../components/timers/Stopwatch';
 import Tabata from '../components/timers/Tabata';
 import XY from '../components/timers/XY';
 import { useTimerContext } from '../utils/context';
-
-
-
-
+import { timerToString } from '../utils/helpers';
 
 const TimersContainer = styled.div`
   display: flex;
@@ -27,13 +24,13 @@ const TimersContainer = styled.div`
 `;
 
 interface TimerButtonProps {
-    isActive: boolean;
+    active: string;
 }
 
 const TimerButton = styled.div<TimerButtonProps>`
   width: 80px;
   height: 80px;
-  background-color: ${props => (props.isActive ? '#c0c0c0' : '#e0e0e0')};
+  background-color: ${(props) => (props.active === 'true' ? '#c0c0c0' : '#e0e0e0')};
   border: 2px solid #ccc;
   border-radius: 50%;
   display: flex;
@@ -84,34 +81,40 @@ const TimerDisplay = styled.div`
 const TimersView = () => {
     const [activeTimer, setActiveTimer] = useState<string | null>(null);
 
+    const { timersQueue, removeLastTimerFromQueue, removeAllTimersFromQueue } = useTimerContext();
+
     const timers = [
-        { title: 'Stopwatch', C: <Stopwatch /> },
-        { title: 'Countdown', C: <Countdown /> },
-        { title: 'XY', C: <XY /> },
-        { title: 'Tabata', C: <Tabata /> },
+        { title: 'Stopwatch', C: <Stopwatch key='stopwatch' /> },
+        { title: 'Countdown', C: <Countdown key='countdown' /> },
+        { title: 'XY', C: <XY key='xy' /> },
+        { title: 'Tabata', C: <Tabata key='tabata' /> },
     ];
 
-    const {timersQueue} = useTimerContext();
-    
     return (
-        <TimersContainer onClick={() => console.log('ani')}>
+        <TimersContainer key='test'>
             <TimerDisplay>{timers.map(timer => (activeTimer === timer.title ? timer.C : null))}</TimerDisplay>
             <StopWatchButtonContainer>
-                {timers.map(timer => (
-                    <TimerButton
-                        key={`timer-${timer.title}`}
-                        isActive={activeTimer === timer.title}
-                        onClick={e => {
-                            e.stopPropagation();
-                            setActiveTimer(timer.title);
-                        }}
-                    >
-                        <TimerTitle>{timer.title}</TimerTitle>
-                    </TimerButton>
-                ))}
+                {
+                    timers.map(timer => (
+                        <TimerButton
+                            key={`timer-${timer.title}`}
+                            active={(activeTimer === timer.title).toString()}
+                            onClick={e => {
+                                e.stopPropagation();
+                                setActiveTimer(timer.title);
+                            }}
+                        >
+                            <TimerTitle>{timer.title}</TimerTitle>
+                        </TimerButton>
+                    ))
+                }
             </StopWatchButtonContainer>
             {/* Queue display */}
             <div>
+                <div>
+                    <button onClick={removeLastTimerFromQueue}>Remove Last Timer</button>
+                    <button onClick={removeAllTimersFromQueue}>Remove All Timers</button>
+                </div>
                 <h3>Timer Queue</h3>
                 <ul>
                     {timersQueue.length === 0 ? (
@@ -119,7 +122,7 @@ const TimersView = () => {
                     ) : (
                         timersQueue.map((timer, index) => (
                             <li key={index}>
-                                Time: {timer.time} seconds, Running: {timer.isRunning ? 'Yes' : 'No'}, Mode: {timer.mode}
+                                {(index + 1)}. {timerToString(timer)}
                             </li>
                         ))
                     )}

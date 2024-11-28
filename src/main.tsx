@@ -5,13 +5,9 @@ import { TimerProvider } from './utils/context';
 
 import './index.css';
 import styled from 'styled-components';
+import TimersView from './views/AddTimer';
 import DocumentationView from './views/DocumentationView';
-import TimersView from './views/AddTimer.tsx';
-import Home from './views/Home.tsx'
-
-
-
-
+import Home from './views/Home';
 
 const Container = styled.div`
   padding: 20px;
@@ -59,7 +55,7 @@ const ButtonLink = styled(Link)`
 `;
 
 const PageIndex = () => {
-    return (   
+    return (
         <Container>
             <Title>ANIKET'S TIMECLOCK ASSIGNMENT</Title>
             <ButtonLink to="/">Workout</ButtonLink>
@@ -68,7 +64,7 @@ const PageIndex = () => {
             <Outlet />
         </Container>
     );
-  };
+};
 
 const router = createHashRouter([
     {
@@ -84,18 +80,17 @@ const router = createHashRouter([
                 element: <DocumentationView />,
             },
             {
-              path: '/add',
-              element: <TimersView />,
-          },
+                path: '/add',
+                element: <TimersView />,
+            },
         ],
     },
 ]);
 
-// biome-ignore lint/style/noNonNullAssertion: root html element is there
 createRoot(document.getElementById('root')!).render(
-      <StrictMode>
+    <StrictMode>
         <TimerProvider>
-          <RouterProvider router={router} />
+            <RouterProvider router={router} />
         </TimerProvider>
-      </StrictMode>
+    </StrictMode>,
 );

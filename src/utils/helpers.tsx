@@ -1,89 +1,50 @@
-// Add helpers here. This is usually code that is just JS and not React code. Example: write a function that
-// calculates number of minutes when passed in seconds. Things of this nature that you don't want to copy/paste
-// everywhere.
+import { Timer } from './context';
+import CONST from './CONST';
 
-import { useState, useEffect } from 'react';
+interface MinSec {
+    min: number,
+    sec: number,
+}
 
-export const useTimer = (mode: String) => {
-    const [time, setTime] = useState(0); // Time remaining
-    const [isRunning, setIsRunning] = useState(false); // Timer state (running or paused)
-    const [errorMessage, setErrorMessage] = useState(''); // Error handling
-  
-     // Timer logic for countdown and stopwatch
-     useEffect(() => {
-        let timer: number | undefined;
+export const timerToString = (timer: Timer) => {
+    const time: MinSec = secToMin(timer.expectedTime);
+    if (timer.mode === CONST.TimerTypes.STOPWATCH || timer.mode === CONST.TimerTypes.COUNTDOWN) {
+        return timer.mode + " timer (" + timeToString(time.min, time.sec) + ")";
+    } else if (timer.mode === CONST.TimerTypes.XY) {
+        return timer.mode + " timer (" + timeToString(time.min, time.sec) + ", " + timer.round + " time(s))";
+    } else if (timer.mode === CONST.TimerTypes.TABATA) {
+        const idleTime: MinSec = secToMin(timer.restTime ?? 0);
+        return timer.mode + " timer (" + timeToString(time.min, time.sec) + ", idle: " + timeToString(idleTime.min, idleTime.sec) + ", " + timer.round + " time(s))";
+    }
+    return timer.mode + " timer";
+}
 
-        if (isRunning) {
-            if (mode === 'countdown' && time > 0) {
-                // Countdown mode: Decrement the time
-                timer = window.setInterval(() => {
-                    setTime(prevTime => {
-                        if (prevTime <= 1) {
-                            setIsRunning(false); // Stop the countdown timer when it reaches 0
-                            return 0;
-                        }
-                        return prevTime - 1;
-                    });
-                }, 1000);
-            } else if (mode === 'stopwatch') {
-                // Stopwatch mode: Increment the time
-                timer = window.setInterval(() => {
-                    setTime(prevTime => prevTime + 1);
-                }, 1000);
-            }
-        }
+// Convert time to seconds, ie: 2 min 3 sec -> 123 sec
+export const timeToSec = (min: number | string, sec: number | string) => {
+    const mins = Number(min) || 0;
+    const secs = Number(sec) || 0;
 
-        return () => {
-            if (timer) clearInterval(timer); // Clean up the timer
-        };
-    }, [isRunning, time, mode]);
+    return mins * 60 + secs;
+}
 
-    // Play or pause the timer
-    const handlePlayPause = () => {
-        if (mode === 'stopwatch' || time > 0) {
-            setIsRunning(prev => !prev); // Toggle the running state for both modes
-        } else {
-            setErrorMessage('Please set a valid time before starting!');
-        }
-    };
+// Convert seconds to minutes and seconds, ie: 123 sec -> 2 min 3 sec
+export const secToMin = (sec: number | string) => {
+    const secs = Number(sec) || 0;
+    return { min: Math.floor(secs / 60), sec: secs % 60 }
+}
 
-    // Reset the timer
-    const handleReset = () => {
-        setIsRunning(false);
-        setTime(0);
-        setErrorMessage('');
-    };
+export const timeToString = (min: number | string, sec: number | string) => {
+    const mins = Number(min) || 0;
+    const secs = Number(sec) || 0;
 
-    // Unified fast forward function (works for both modes)
-    const handleFastForward = () => {
-        if (mode === 'countdown') {
-            setTime(0); // Set time to 0 for countdown mode
-        } else if (mode === 'stopwatch') {
-            setTime(300); // Set time to 5 minutes (300 seconds) for stopwatch mode
-        }
-        setIsRunning(false); // Stop the timer after fast forwarding
-    };
-    
+    if (mins > 0 && secs === 0) {
+        return `${mins} min`;
+    } else if (mins > 0 && secs > 0) {
+        return `${mins} min ${secs} sec`;
+    } else if (mins === 0 && secs > 0) {
+        return `${secs} sec`;
+    }
 
-    // Set the timer manually
-    const setTimer = (minutes: number, seconds: number) => {
-        const totalSeconds = minutes * 60 + seconds;
-        if (totalSeconds > 0) {
-            setTime(totalSeconds);
-            setErrorMessage('');
-        } else {
-            setErrorMessage('Please provide a valid time!');
-        }
-    };
+    return '0 sec';
+}
 
-    return {
-        time,
-        isRunning,
-        errorMessage,
-        mode,
-        handlePlayPause,
-        handleReset,
-        handleFastForward,
-        setTimer,
-    };
-};
